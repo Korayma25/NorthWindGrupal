@@ -1,0 +1,11 @@
+<div class="alert alert-@Type my-2" role="alert">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public string Type { get; set; } = "info";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

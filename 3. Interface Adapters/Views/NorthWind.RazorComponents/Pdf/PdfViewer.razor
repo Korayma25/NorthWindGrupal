@@ -1,0 +1,96 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<div class="pdf-viewer-container d-flex flex-column h-100">
+    <div class="pdf-viewer-toolbar d-flex justify-content-end gap-2 mb-2">
+        @if (!string.IsNullOrEmpty(BlobUrl))
+        {
+            <a href="@BlobUrl" download="@FileName" class="btn btn-outline-primary btn-sm">
+                Descargar
+            </a>
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="PrintAsync">
+                Imprimir
+            </button>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(BlobUrl))
+    {
+        <iframe @ref="IframeElement"
+                src="@BlobUrl"
+                class="pdf-viewer-frame">
+        </iframe>
+    }
+    else
+    {
+        <div class="text-center py-5 border rounded bg-light" style="height: 80vh;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando PDF...</span>
+            </div>
+            <p class="mt-2 text-muted">Generando vista previa del documento...</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public byte[] Content { get; set; } = [];
+
+    [Parameter]
+    public string FileName { get; set; } = "invoice.pdf";
+
+    private IJSObjectReference? Module;
+    private string? BlobUrl;
+    private ElementReference IframeElement;
+    private byte[]? PreviousContent;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Content != null && Content.Length > 0 && Content != PreviousContent)
+        {
+            PreviousContent = Content;
+            if (Module == null)
+            {
+                Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/NorthWind.RazorComponents/pdfInterop.js");
+            }
+
+            if (!string.IsNullOrEmpty(BlobUrl))
+            {
+                await Module.InvokeVoidAsync("revokeUrl", BlobUrl);
+                BlobUrl = null;
+            }
+
+            BlobUrl = await Module.InvokeAsync<string>("createBlobUrl", Content);
+        }
+    }
+
+    private async Task PrintAsync()
+    {
+        if (Module != null)
+        {
+            await Module.InvokeVoidAsync("print", IframeElement);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (Module != null)
+        {
+            if (!string.IsNullOrEmpty(BlobUrl))
+            {
+                try
+                {
+                    await Module.InvokeVoidAsync("revokeUrl", BlobUrl);
+                }
+                catch (JSDisconnectedException) { }
+                catch (TaskCanceledException) { }
+            }
+            try
+            {
+                await Module.DisposeAsync();
+            }
+            catch (JSDisconnectedException) { }
+            catch (TaskCanceledException) { }
+        }
+    }
+}

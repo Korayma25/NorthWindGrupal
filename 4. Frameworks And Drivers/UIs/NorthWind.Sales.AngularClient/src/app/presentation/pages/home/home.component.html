@@ -1,0 +1,61 @@
+<div class="home-container">
+  @if (authService.isAuthenticated()) {
+    <header class="home-header">
+      <h1 class="home-title">{{ es.home.appTitle }}</h1>
+      <p class="home-subtitle">{{ es.home.appSubtitle }}</p>
+    </header>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <a routerLink="/createorder" class="home-card" id="card-create-order">
+          <div class="home-card-icon-wrapper" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                 class="bi bi-card-checklist" viewBox="0 0 16 16">
+              <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+              <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
+            </svg>
+          </div>
+          <div class="home-card-content">
+            <h2 class="home-card-title">{{ es.home.createOrderCardTitle }}</h2>
+            <p class="home-card-desc">{{ es.home.createOrderCardDescription }}</p>
+          </div>
+          <div class="home-card-footer">
+            <span class="btn btn-primary home-card-action">
+              {{ es.home.openButton }}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right ms-2" viewBox="0 0 16 16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <a routerLink="/invoices" class="home-card" id="card-invoices">
+          <div class="home-card-icon-wrapper" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                 class="bi bi-receipt" viewBox="0 0 16 16">
+              <path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647A.5.5 0 0 1 14 1.05v13.9a.5.5 0 0 1-.854.353l-.646-.647-.646.647a.5.5 0 0 1-.708 0L10 14.707l-.646.647a.5.5 0 0 1-.708 0L8 14.707l-.646.647a.5.5 0 0 1-.708 0L6 14.707l-.646.647a.5.5 0 0 1-.708 0L4 14.707l-.646.647a.5.5 0 0 1-.854-.353V1.05a.5.5 0 0 1 .05-.247l.72-1.3zM2 2v12h12V2zm3 3h6v1H5zm0 2h6v1H5zm0 2h6v1H5z"/>
+            </svg>
+          </div>
+          <div class="home-card-content">
+            <h2 class="home-card-title">{{ es.home.invoicesCardTitle }}</h2>
+            <p class="home-card-desc">{{ es.home.invoicesCardDescription }}</p>
+          </div>
+          <div class="home-card-footer">
+            <span class="btn btn-primary home-card-action">
+              {{ es.home.openButton }}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right ms-2" viewBox="0 0 16 16" aria-hidden="true">
+                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+              </svg>
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  } @else {
+    <header class="home-header">
+      <h1 class="home-title">{{ es.home.welcomeMessage }}</h1>
+    </header>
+  }
+</div>

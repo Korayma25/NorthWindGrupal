@@ -1,0 +1,68 @@
+<app-search-modal
+  [title]="es.search.searchCustomersTitle"
+  [(visible)]="visible"
+  [loader]="loadCustomers"
+  [canSearch]="canSearchCustomer"
+  [debounceMilliseconds]="debounceMilliseconds()"
+  [minSearchLength]="minSearchLength()"
+  [headerTemplate]="headerTpl"
+  [rowTemplate]="rowTpl"
+  (selected)="onCustomerSelected($event)"
+>
+  <div class="row g-2" filters>
+    <div class="col-md-6">
+      <label class="form-label small mb-1">{{ es.search.filterNameLabel }}</label>
+      <input
+        type="text"
+        maxlength="40"
+        appCharFilter="letters"
+        class="form-control form-control-sm"
+        [class.is-invalid]="nameValidationError() !== null"
+        placeholder="Buscar por nombre..."
+        [value]="filterName()"
+        (input)="onNameInput($event)"
+      />
+      @if (nameValidationError()) {
+        <div class="text-danger small mt-1">{{ nameValidationError() }}</div>
+      }
+    </div>
+    <div class="col-md-6">
+      <label class="form-label small mb-1">{{ es.search.filterIdentityCardLabel }}</label>
+      <input
+        type="text"
+        maxlength="10"
+        inputmode="numeric"
+        appCharFilter="digits"
+        class="form-control form-control-sm"
+        [class.is-invalid]="identityCardValidationError() !== null"
+        placeholder="Buscar por cédula..."
+        [value]="filterIdentityCard()"
+        (input)="onIdentityCardInput($event)"
+      />
+      @if (identityCardValidationError()) {
+        <div class="text-danger small mt-1">{{ identityCardValidationError() }}</div>
+      }
+    </div>
+    @if (serverError()) {
+      <div class="col-12">
+        <div class="alert alert-danger py-1 px-2 small mt-2 mb-0" role="alert">
+          {{ serverError() }}
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template #headerTpl>
+    <th>{{ es.search.customerIdHeader }}</th>
+    <th>{{ es.search.customerNameHeader }}</th>
+    <th>{{ es.search.customerIdentityCardHeader }}</th>
+    <th>{{ es.search.customerCityHeader }}</th>
+  </ng-template>
+
+  <ng-template #rowTpl let-customer>
+    <td class="fw-bold">{{ customer.id }}</td>
+    <td>{{ customer.name }}</td>
+    <td>{{ customer.identityCard }}</td>
+    <td>{{ customer.city }}</td>
+  </ng-template>
+</app-search-modal>

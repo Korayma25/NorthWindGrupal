@@ -1,0 +1,254 @@
+@page "/invoices"
+@attribute [Authorize]
+@inject InvoiceSearchViewModel ViewModel
+@implements IDisposable
+
+<PageTitle>@InvoiceMessages.InvoiceSearchTitle</PageTitle>
+
+<ErrorBoundary @ref="ErrorBoundaryRef">
+    <ChildContent>
+        <div class="container-fluid p-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0 fw-bold">@InvoiceMessages.InvoiceSearchTitle</h4>
+            </div>
+
+            <!-- Card de Filtros -->
+            <div class="card shadow-sm border-0 mb-4 pos-card">
+                <div class="card-body">
+                    <form @onsubmit="OnSearchSubmit" @onsubmit:preventDefault="true">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">@InvoiceMessages.InvoiceNumberLabel</label>
+                                <input type="text"
+                                       maxlength="17"
+                                       inputmode="numeric"
+                                       class="form-control form-control-sm"
+                                       placeholder="Ej. 001-001-000000001"
+                                       @bind:get="ViewModel.InvoiceNumber"
+                                       @bind:set="OnInvoiceNumberInput"
+                                       @bind:event="oninput" />
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">@InvoiceMessages.CustomerLabel</label>
+                                <input type="text"
+                                       maxlength="40"
+                                       class="form-control form-control-sm @(CustomerNameValidationError != null ? "is-invalid" : "")"
+                                       placeholder="Buscar por cliente..."
+                                       @bind:get="ViewModel.CustomerName"
+                                       @bind:set="OnCustomerNameInput"
+                                       @bind:event="oninput" />
+                                @if (!string.IsNullOrEmpty(CustomerNameValidationError))
+                                {
+                                    <div class="text-danger small mt-1">@CustomerNameValidationError</div>
+                                }
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary btn-sm w-100" disabled="@ViewModel.IsLoading">
+                                    @if (ViewModel.IsLoading)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        <span>@SearchMessages.LoadingMessage</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-search me-1"></i>
+                                        <span>@SearchMessages.SearchButtonText</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            @if (ViewModel.IsLoading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">@SearchMessages.LoadingMessage</span>
+                    </div>
+                </div>
+            }
+            else if (ViewModel.Invoices?.Items != null && ViewModel.Invoices.Items.Any())
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>@SearchMessages.InvoiceNumberHeader</th>
+                                        <th>@SearchMessages.InvoiceDateHeader</th>
+                                        <th>@SearchMessages.InvoiceCustomerHeader</th>
+                                        <th>@SearchMessages.CustomerIdentityCardHeader</th>
+                                        <th class="text-end">@SearchMessages.InvoiceTotalHeader</th>
+                                        <th class="text-center" style="width: 100px;">@SearchMessages.ActionsHeader</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var invoice in ViewModel.Invoices.Items)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold">@invoice.InvoiceNumber</td>
+                                            <td>@invoice.OrderDate.ToString("d")</td>
+                                            <td>@invoice.CustomerName</td>
+                                            <td>@invoice.CustomerIdentityCard</td>
+                                            <td class="text-end fw-bold">$@invoice.Total.ToString("N2")</td>
+                                            <td class="text-center">
+                                                <a href="@($"/invoices/{invoice.Id}")" class="btn btn-outline-primary btn-sm">
+                                                    Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 py-2">
+                        <Pager Page="@ViewModel.Page"
+                               TotalPages="@(ViewModel.Invoices?.TotalPages ?? 1)"
+                               PageChanged="OnPageChanged" />
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center my-3 shadow-sm border-0" role="alert">
+                    @SearchMessages.NoResultsMessage
+                </div>
+            }
+        </div>
+    </ChildContent>
+    <ErrorContent Context="context">
+        <ExceptionDisplay Exception="context" />
+        <button class="btn btn-danger" @onclick="Recover">
+            @CommonMessages.OK
+        </button>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private ErrorBoundary? ErrorBoundaryRef;
+    private string? CustomerNameValidationError;
+    private string LastSearchedInvoiceNumber = string.Empty;
+    private string LastSearchedCustomerName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SearchAndTrackAsync(1);
+    }
+
+    private async Task OnInvoiceNumberInput(string? value)
+    {
+        var filtered = TextRules.KeepDigitsAndHyphen(value);
+        if (filtered.Length > 17)
+        {
+            filtered = filtered[..17];
+        }
+        if (ViewModel.InvoiceNumber == filtered)
+        {
+            return;
+        }
+        ViewModel.InvoiceNumber = filtered;
+        await OnFilterInputAsync();
+    }
+
+    private async Task OnCustomerNameInput(string? value)
+    {
+        var filtered = TextRules.KeepLetters(value);
+        if (filtered.Length > 40)
+        {
+            filtered = filtered[..40];
+        }
+        if (ViewModel.CustomerName == filtered)
+        {
+            return;
+        }
+        ViewModel.CustomerName = filtered;
+        ValidateCustomerName();
+        await OnFilterInputAsync();
+    }
+
+    private async Task OnFilterInputAsync()
+    {
+        ValidateCustomerName();
+        await ViewModel.NotifyFilterChangedAsync(CanDynamicSearch, () =>
+        {
+            LastSearchedInvoiceNumber = ViewModel.InvoiceNumber;
+            LastSearchedCustomerName = ViewModel.CustomerName;
+            StateHasChanged();
+        });
+    }
+
+    private bool ValidateCustomerName()
+    {
+        CustomerNameValidationError = null;
+        if (!string.IsNullOrEmpty(ViewModel.CustomerName) && !TextRules.OnlyLetters(ViewModel.CustomerName))
+        {
+            CustomerNameValidationError = "El nombre del cliente solo debe contener letras.";
+            return false;
+        }
+        return true;
+    }
+
+    private bool CanDynamicSearch()
+    {
+        var IsCustomerValid = ValidateCustomerName();
+        if (!IsCustomerValid)
+        {
+            return false;
+        }
+
+        if (ViewModel.CustomerName.Length == 1)
+        {
+            return false;
+        }
+
+        if (ViewModel.InvoiceNumber.Length == 1)
+        {
+            return false;
+        }
+
+        if (ViewModel.InvoiceNumber == LastSearchedInvoiceNumber && ViewModel.CustomerName == LastSearchedCustomerName)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task SearchAndTrackAsync(int page)
+    {
+        LastSearchedInvoiceNumber = ViewModel.InvoiceNumber;
+        LastSearchedCustomerName = ViewModel.CustomerName;
+        await ViewModel.SearchAsync(page);
+    }
+
+    private async Task OnSearchSubmit()
+    {
+        if (ValidateCustomerName())
+        {
+            await SearchAndTrackAsync(1);
+        }
+    }
+
+    private async Task OnPageChanged(int page)
+    {
+        if (ValidateCustomerName())
+        {
+            await SearchAndTrackAsync(page);
+        }
+    }
+
+    private void Recover()
+    {
+        ErrorBoundaryRef?.Recover();
+    }
+
+    public void Dispose()
+    {
+        ViewModel.CancelPending();
+    }
+}

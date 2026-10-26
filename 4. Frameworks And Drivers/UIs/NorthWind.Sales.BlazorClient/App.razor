@@ -1,0 +1,19 @@
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly"
+            AdditionalAssemblies="AdditionalAssemblies"
+            NotFoundPage="typeof(Pages.NotFound)">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    private Assembly[] AdditionalAssemblies =>
+    [
+        typeof(NorthWind.Sales.Frontend.Views.Pages.CreateOrder).Assembly,
+        typeof(NorthWind.Membership.Frontend.RazorViews.Extensions.MembershipPages).Assembly
+    ];
+}
+

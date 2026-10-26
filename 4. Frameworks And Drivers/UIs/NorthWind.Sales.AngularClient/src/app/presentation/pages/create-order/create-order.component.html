@@ -1,0 +1,281 @@
+<div class="container-fluid py-4">
+  @if (order.errorMessage()) {
+    <app-message-alert type="danger">{{ order.errorMessage() }}</app-message-alert>
+  }
+
+  @if (order.informationMessage()) {
+    <app-message-alert type="success">
+      {{ order.informationMessage() }}
+      @if (order.createdOrderId() !== null) {
+        <a [routerLink]="['/invoices', order.createdOrderId()]" class="alert-link ms-2">
+          {{ es.createOrder.viewInvoiceLink }} {{ order.createdOrderId() }}
+        </a>
+      }
+    </app-message-alert>
+  }
+
+  @if (order.summaryErrors().length > 0) {
+    <div class="alert alert-danger my-2" role="alert">
+      <ul class="mb-0 ps-3">
+        @for (err of order.summaryErrors(); track $index) {
+          <li>{{ err }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <!-- Bloque de Cabecera: Cliente y Envío -->
+  <div class="card shadow-sm border-0 mb-4 pos-card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 fw-bold">{{ es.createOrder.customerLabel }}</h6>
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm"
+        (click)="openCustomerSearch()"
+      >
+        {{ es.createOrder.searchCustomerButtonText }}
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label small text-muted">{{ es.createOrder.customerIdLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.customerId()"
+            readonly
+            disabled
+          />
+          @if (order.getFieldError('CustomerId')) {
+            <div class="text-danger small mt-1">{{ order.getFieldError('CustomerId') }}</div>
+          }
+        </div>
+        <div class="col-md-5">
+          <label class="form-label small text-muted">{{ es.createOrder.customerNameLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.customerName()"
+            readonly
+            disabled
+          />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted">{{ es.createOrder.customerCardLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.customerIdentityCard()"
+            readonly
+            disabled
+          />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label small text-muted">{{ es.createOrder.shipAddressLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.shipAddress()"
+            readonly
+            disabled
+          />
+          @if (order.getFieldError('ShipAddress')) {
+            <div class="text-danger small mt-1">{{ order.getFieldError('ShipAddress') }}</div>
+          }
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small text-muted">{{ es.createOrder.shipCityLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.shipCity()"
+            readonly
+            disabled
+          />
+          @if (order.getFieldError('ShipCity')) {
+            <div class="text-danger small mt-1">{{ order.getFieldError('ShipCity') }}</div>
+          }
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small text-muted">{{ es.createOrder.shipCountryLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.shipCountry()"
+            readonly
+            disabled
+          />
+          @if (order.getFieldError('ShipCountry')) {
+            <div class="text-danger small mt-1">{{ order.getFieldError('ShipCountry') }}</div>
+          }
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small text-muted">{{ es.createOrder.shipPostalCodeLabel }}</label>
+          <input
+            type="text"
+            class="form-control form-control-sm bg-light"
+            [value]="order.shipPostalCode()"
+            readonly
+            disabled
+          />
+          @if (order.getFieldError('ShipPostalCode')) {
+            <div class="text-danger small mt-1">{{ order.getFieldError('ShipPostalCode') }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque de Detalle: Productos -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 fw-bold">{{ es.createOrder.productsSectionTitle }}</h6>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="openAddProductModal()"
+      >
+        {{ es.createOrder.addProductButtonText }}
+      </button>
+    </div>
+    <div class="card-body p-0">
+      @if (order.orderDetails().length === 0) {
+        <div class="text-center py-4 text-muted">
+          {{ es.createOrder.emptyProductsMessage }}
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ es.createOrder.productCodeLabel }}</th>
+                <th>{{ es.createOrder.productNameLabel }}</th>
+                <th class="text-end">{{ es.createOrder.unitPriceLabel }}</th>
+                <th class="text-end">{{ es.createOrder.unitsInStockLabel }}</th>
+                <th style="width: 130px;" class="text-center">{{ es.createOrder.quantityLabel }}</th>
+                <th class="text-end">{{ es.createOrder.subtotalLabel }}</th>
+                <th class="text-center" style="width: 160px;">{{ es.createOrder.actionsHeader }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of order.orderDetails(); track item.productId; let i = $index) {
+                <tr>
+                  <td class="fw-bold">{{ item.productCode }}</td>
+                  <td>{{ item.productName }}</td>
+                  <td class="text-end">${{ item.unitPrice | number: '1.2-2' }}</td>
+                  <td class="text-end">
+                    <span
+                      class="badge"
+                      [ngClass]="item.unitsInStock <= 3 ? 'bg-warning text-dark' : 'bg-secondary'"
+                    >
+                      {{ item.unitsInStock }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <input
+                      type="number"
+                      class="form-control form-control-sm text-center"
+                      min="1"
+                      [max]="item.unitsInStock"
+                      [value]="item.quantity"
+                      [class.is-invalid]="order.getDetailQuantityError(i) !== null"
+                      (input)="onQuantityInput(item, $event)"
+                    />
+                    @if (order.getDetailQuantityError(i)) {
+                      <div class="text-danger small mt-1">
+                        {{ order.getDetailQuantityError(i) }}
+                      </div>
+                    }
+                  </td>
+                  <td class="text-end fw-bold">
+                    ${{ item.unitPrice * item.quantity | number: '1.2-2' }}
+                  </td>
+                  <td class="text-center">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary btn-sm me-1"
+                      (click)="openReplaceProductModal(item)"
+                    >
+                      {{ es.createOrder.changeCustomerButtonText }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm"
+                      [title]="es.createOrder.removeProductButtonText"
+                      [attr.aria-label]="es.createOrder.removeProductButtonText"
+                      (click)="openDeleteConfirmationModal(item)"
+                    >
+                      {{ es.createOrder.removeProductButtonText }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Bloque de Totales y Guardar -->
+  <div class="card shadow-sm border-0 mb-4 pos-totals-card">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <button
+            type="button"
+            class="btn btn-primary btn-lg px-4"
+            [disabled]="order.orderDetails().length === 0 || order.isLoading()"
+            (click)="onSubmit()"
+          >
+            @if (order.isLoading()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            {{ es.createOrder.saveOrderButtonText }}
+          </button>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">{{ es.createOrder.subtotalLabel }}:</span>
+            <span class="fw-semibold">${{ order.subtotal() | number: '1.2-2' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">{{ es.createOrder.discountAmountLabel }}:</span>
+            <span class="fw-semibold">${{ order.discountAmount() | number: '1.2-2' }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">{{ es.createOrder.taxAmountLabel }}:</span>
+            <span class="fw-semibold">${{ order.taxAmount() | number: '1.2-2' }}</span>
+          </div>
+          <hr class="my-2" />
+          <div class="d-flex justify-content-between">
+            <span class="h5 mb-0 fw-bold">{{ es.createOrder.totalLabel }}:</span>
+            <span class="h5 mb-0 fw-bold total-highlight">${{ order.total() | number: '1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-customer-search-popup
+  [(visible)]="isCustomerSearchPopupVisible"
+  (selected)="onCustomerSelected($event)"
+/>
+
+<app-product-search-popup
+  [(visible)]="isProductSearchPopupVisible"
+  (selected)="onProductSelected($event)"
+/>
+
+<app-confirm-dialog
+  [(visible)]="isConfirmDeleteDialogOpen"
+  [title]="es.createOrder.removeProductTitle"
+  [message]="deleteConfirmationMessage()"
+  [confirmText]="es.createOrder.removeProductConfirmButton"
+  [cancelText]="es.createOrder.cancelButton"
+  (confirmed)="onConfirmDelete()"
+  (cancelled)="onCancelDelete()"
+/>

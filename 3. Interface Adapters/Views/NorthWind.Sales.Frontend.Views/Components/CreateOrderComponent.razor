@@ -1,0 +1,237 @@
+<EditForm Model="Order" OnValidSubmit="Order.Send">
+    <ModelValidator Validator="Order.Validator" @ref="Order.ModelValidatorComponentReference" />
+    <ValidationSummary />
+
+    @if (!string.IsNullOrEmpty(Order.ErrorMessage))
+    {
+        <MessageAlert Type="danger">@Order.ErrorMessage</MessageAlert>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Order.InformationMessage))
+    {
+        <MessageAlert Type="success">
+            @Order.InformationMessage
+            @if (Order.CreatedOrderId != null)
+            {
+                <a href="@($"/invoices/{Order.CreatedOrderId}")" class="alert-link ms-2">Ver factura @Order.CreatedOrderId</a>
+            }
+        </MessageAlert>
+    }
+
+    <!-- Bloque de Cabecera: Cliente y Envío -->
+    <div class="card shadow-sm border-0 mb-4 pos-card">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold">@CreateOrderMessages.CustomerLabel</h6>
+            <button type="button" class="btn btn-outline-primary btn-sm" @onclick="() => IsCustomerSearchPopupVisible = true">
+                @CreateOrderMessages.SearchCustomerButtonText
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">@CreateOrderMessages.CustomerIdLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.CustomerId" readonly disabled />
+                    <ValidationMessage For="() => Order.CustomerId" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small text-muted">@CreateOrderMessages.CustomerNameLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.CustomerName" readonly disabled />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">@CreateOrderMessages.CustomerCardLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.CustomerIdentityCard" readonly disabled />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted">@CreateOrderMessages.ShipAddressLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.ShipAddress" readonly disabled />
+                    <ValidationMessage For="() => Order.ShipAddress" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">@CreateOrderMessages.ShipCityLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.ShipCity" readonly disabled />
+                    <ValidationMessage For="() => Order.ShipCity" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">@CreateOrderMessages.ShipCountryLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.ShipCountry" readonly disabled />
+                    <ValidationMessage For="() => Order.ShipCountry" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted">@CreateOrderMessages.ShipPostalCodeLabel</label>
+                    <input type="text" class="form-control form-control-sm bg-light" value="@Order.ShipPostalCode" readonly disabled />
+                    <ValidationMessage For="() => Order.ShipPostalCode" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloque de Detalle: Productos -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold">Productos</h6>
+            <button type="button" class="btn btn-primary btn-sm" @onclick="OpenAddProductModal">
+                @CreateOrderMessages.AddProductButtonText
+            </button>
+        </div>
+        <div class="card-body p-0">
+            @if (Order.OrderDetails.Count == 0)
+            {
+                <div class="text-center py-4 text-muted">
+                    No se han agregado productos a la orden. Haga clic en "@CreateOrderMessages.AddProductButtonText" para comenzar.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@CreateOrderMessages.ProductCodeLabel</th>
+                                <th>@CreateOrderMessages.ProductNameLabel</th>
+                                <th class="text-end">@CreateOrderMessages.UnitPriceLabel</th>
+                                <th class="text-end">@CreateOrderMessages.UnitsInStockLabel</th>
+                                <th style="width: 130px;" class="text-center">@CreateOrderMessages.QuantityLabel</th>
+                                <th class="text-end">@CreateOrderMessages.SubtotalLabel</th>
+                                <th class="text-center" style="width: 160px;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Order.OrderDetails)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@item.ProductCode</td>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-end">$@item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-end">
+                                        <span class="badge @(item.UnitsInStock <= 3 ? "bg-warning text-dark" : "bg-secondary")">
+                                            @item.UnitsInStock
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <InputNumber class="form-control form-control-sm text-center"
+                                                     min="1"
+                                                     max="@item.UnitsInStock"
+                                                     @bind-Value="item.Quantity" />
+                                        <ValidationMessage For="() => item.Quantity" />
+                                    </td>
+                                    <td class="text-end fw-bold">$@item.LineSubtotal.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm me-1" @onclick="() => OpenReplaceProductModal(item)">
+                                            @CreateOrderMessages.ChangeCustomerButtonText
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" title="@CreateOrderMessages.RemoveProductButtonText" aria-label="@CreateOrderMessages.RemoveProductButtonText" @onclick="() => OpenDeleteConfirmationModal(item)">
+                                            @CreateOrderMessages.RemoveProductButtonText
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Bloque de Totales y Guardar -->
+    <div class="card shadow-sm border-0 mb-4 pos-totals-card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" disabled="@(Order.OrderDetails.Count == 0)">
+                        @CreateOrderMessages.SaveOrderButtonText
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">@CreateOrderMessages.SubtotalLabel:</span>
+                        <span class="fw-semibold">$@Order.Subtotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">@CreateOrderMessages.DiscountAmountLabel:</span>
+                        <span class="fw-semibold">$@Order.DiscountAmount.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">@CreateOrderMessages.TaxAmountLabel:</span>
+                        <span class="fw-semibold">$@Order.TaxAmount.ToString("N2")</span>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="d-flex justify-content-between">
+                        <span class="h5 mb-0 fw-bold">@CreateOrderMessages.TotalLabel:</span>
+                        <span class="h5 mb-0 fw-bold total-highlight">$@Order.Total.ToString("N2")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+<CustomerSearchPopup @bind-Visible="IsCustomerSearchPopupVisible" OnSelected="OnCustomerSelected" />
+<ProductSearchPopup @bind-Visible="IsProductSearchPopupVisible" OnSelected="OnProductSelected" />
+<ConfirmDialog @bind-Visible="IsConfirmDeleteDialogOpen"
+               Title="@CreateOrderMessages.RemoveProductTitle"
+               Message="@(PendingRemovalItem != null ? string.Format(CreateOrderMessages.RemoveProductConfirmation, PendingRemovalItem.ProductName) : string.Empty)"
+               ConfirmText="@CreateOrderMessages.RemoveProductConfirmButton"
+               CancelText="@CreateOrderMessages.CancelButton"
+               OnConfirm="OnConfirmDelete"
+               OnCancel="OnCancelDelete" />
+
+@code {
+    private bool IsCustomerSearchPopupVisible;
+    private bool IsProductSearchPopupVisible;
+    private CreateOrderDetailViewModel? ReplacingItem;
+    private CreateOrderDetailViewModel? PendingRemovalItem;
+    private bool IsConfirmDeleteDialogOpen;
+
+    private void OpenDeleteConfirmationModal(CreateOrderDetailViewModel item)
+    {
+        PendingRemovalItem = item;
+        IsConfirmDeleteDialogOpen = true;
+    }
+
+    private void OnConfirmDelete()
+    {
+        if (PendingRemovalItem != null)
+        {
+            Order.RemoveDetail(PendingRemovalItem);
+            PendingRemovalItem = null;
+        }
+        IsConfirmDeleteDialogOpen = false;
+    }
+
+    private void OnCancelDelete()
+    {
+        PendingRemovalItem = null;
+        IsConfirmDeleteDialogOpen = false;
+    }
+
+    private void OnCustomerSelected(CustomerLookupDto customer)
+    {
+        Order.SelectCustomer(customer);
+    }
+
+    private void OpenAddProductModal()
+    {
+        ReplacingItem = null;
+        IsProductSearchPopupVisible = true;
+    }
+
+    private void OpenReplaceProductModal(CreateOrderDetailViewModel item)
+    {
+        ReplacingItem = item;
+        IsProductSearchPopupVisible = true;
+    }
+
+    private void OnProductSelected(ProductLookupDto product)
+    {
+        if (ReplacingItem != null)
+        {
+            Order.ReplaceProduct(ReplacingItem, product);
+            ReplacingItem = null;
+        }
+        else
+        {
+            Order.AddProduct(product);
+        }
+    }
+}

@@ -1,0 +1,17 @@
+global using Entities = NorthWind.Sales.Backend.Repositories.Entities;
+global using NorthWind.Sales.Backend.BusinessObjects.Aggregates;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.Repositories;
+global using NorthWind.Sales.Backend.BusinessObjects.POCOEntities;
+global using NorthWind.Sales.Backend.BusinessObjects.ValueObjects;
+global using NorthWind.Sales.Backend.Repositories.Interfaces;
+global using NorthWind.Sales.Backend.Repositories.Repositories;
+global using NorthWind.Sales.Backend.Repositories.Entities;
+global using NorthWind.Entities.Dtos;
+global using NorthWind.Sales.Entities.Dtos.SearchCustomers;
+global using NorthWind.Sales.Entities.Dtos.SearchProducts;
+global using NorthWind.Sales.Entities.Dtos.SearchInvoices;
+global using NorthWind.Sales.Entities.Dtos.GetInvoice;
+global using System.Reflection;
+global using NorthWind.DomainLogs.Entities.Interfaces;
+global using NorthWind.DomainLogs.Entities.ValueObjects;
+global using NorthWind.Entities.Interfaces;

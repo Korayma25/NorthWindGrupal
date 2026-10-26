@@ -1,0 +1,231 @@
+@inject ISearchCustomersGateway Gateway
+
+<SearchModal TItem="CustomerLookupDto"
+             Title="@SearchMessages.SearchCustomersTitle"
+             Visible="Visible"
+             VisibleChanged="VisibleChanged"
+             Loader="LoadCustomersAsync"
+             OnSelected="OnSelected"
+             CanSearch="CanSearchCustomer"
+             DebounceMilliseconds="DebounceMilliseconds"
+             MinSearchLength="MinSearchLength">
+    <Filters>
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label class="form-label small mb-1">@SearchMessages.FilterNameLabel</label>
+                <input type="text"
+                       maxlength="40"
+                       class="form-control form-control-sm @(NameValidationError != null ? "is-invalid" : "")"
+                       placeholder="Buscar por nombre..."
+                       @bind:get="FilterName"
+                       @bind:set="OnNameInput"
+                       @bind:event="oninput" />
+                @if (!string.IsNullOrEmpty(NameValidationError))
+                {
+                    <div class="text-danger small mt-1">@NameValidationError</div>
+                }
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small mb-1">@SearchMessages.FilterIdentityCardLabel</label>
+                <input type="text"
+                       maxlength="10"
+                       inputmode="numeric"
+                       class="form-control form-control-sm @(IdentityCardValidationError != null ? "is-invalid" : "")"
+                       placeholder="Buscar por cédula..."
+                       @bind:get="FilterIdentityCard"
+                       @bind:set="OnIdentityCardInput"
+                       @bind:event="oninput" />
+                @if (!string.IsNullOrEmpty(IdentityCardValidationError))
+                {
+                    <div class="text-danger small mt-1">@IdentityCardValidationError</div>
+                }
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(ServerError))
+        {
+            <div class="alert alert-danger py-1 px-2 small mt-2 mb-0">@ServerError</div>
+        }
+    </Filters>
+    <HeaderTemplate>
+        <th>@SearchMessages.CustomerIdHeader</th>
+        <th>@SearchMessages.CustomerNameHeader</th>
+        <th>@SearchMessages.CustomerIdentityCardHeader</th>
+        <th>@SearchMessages.CustomerCityHeader</th>
+    </HeaderTemplate>
+    <RowTemplate Context="customer">
+        <td class="fw-bold">@customer.Id</td>
+        <td>@customer.Name</td>
+        <td>@customer.IdentityCard</td>
+        <td>@customer.City</td>
+    </RowTemplate>
+</SearchModal>
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<CustomerLookupDto> OnSelected { get; set; }
+
+    [Parameter]
+    public int DebounceMilliseconds { get; set; } = 400;
+
+    [Parameter]
+    public int MinSearchLength { get; set; } = 2;
+
+    private string FilterName = string.Empty;
+    private string FilterIdentityCard = string.Empty;
+    private string? NameValidationError;
+    private string? IdentityCardValidationError;
+    private string? ServerError;
+    private bool PreviousVisible;
+    private string LastSearchedName = string.Empty;
+    private string LastSearchedIdentityCard = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        if (Visible && !PreviousVisible)
+        {
+            FilterName = string.Empty;
+            FilterIdentityCard = string.Empty;
+            NameValidationError = null;
+            IdentityCardValidationError = null;
+            ServerError = null;
+            LastSearchedName = string.Empty;
+            LastSearchedIdentityCard = string.Empty;
+        }
+        PreviousVisible = Visible;
+    }
+
+    private void OnNameInput(string? value)
+    {
+        var filtered = TextRules.KeepLetters(value);
+        if (filtered.Length > 40)
+        {
+            filtered = filtered[..40];
+        }
+        FilterName = filtered;
+        ValidateName();
+    }
+
+    private void OnIdentityCardInput(string? value)
+    {
+        var filtered = TextRules.KeepDigits(value);
+        if (filtered.Length > 10)
+        {
+            filtered = filtered[..10];
+        }
+        FilterIdentityCard = filtered;
+        ValidateIdentityCard();
+    }
+
+    private bool ValidateName()
+    {
+        NameValidationError = null;
+        if (!string.IsNullOrEmpty(FilterName) && !TextRules.OnlyLetters(FilterName))
+        {
+            NameValidationError = "El nombre solo debe contener letras.";
+            return false;
+        }
+        return true;
+    }
+
+    private bool ValidateIdentityCard()
+    {
+        IdentityCardValidationError = null;
+        if (!string.IsNullOrEmpty(FilterIdentityCard))
+        {
+            if (!TextRules.OnlyDigits(FilterIdentityCard))
+            {
+                IdentityCardValidationError = "La cédula solo debe contener dígitos.";
+                return false;
+            }
+            if (FilterIdentityCard.Length > 10)
+            {
+                IdentityCardValidationError = "La cédula no debe tener más de 10 dígitos.";
+                return false;
+            }
+            if (FilterIdentityCard.Length == 10 && !EcuadorianIdentityCard.IsValid(FilterIdentityCard))
+            {
+                IdentityCardValidationError = "La cédula no es válida según el algoritmo oficial.";
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bool CanSearchCustomer()
+    {
+        var IsNameValid = ValidateName();
+        var IsCardValid = ValidateIdentityCard();
+
+        if (!IsNameValid || !IsCardValid)
+        {
+            return false;
+        }
+
+        if (FilterName.Length == 1)
+        {
+            return false;
+        }
+
+        if (FilterName == LastSearchedName && FilterIdentityCard == LastSearchedIdentityCard)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<PagedResultDto<CustomerLookupDto>> LoadCustomersAsync(int page, int pageSize)
+    {
+        ServerError = null;
+        var IsNameValid = ValidateName();
+        var IsCardValid = ValidateIdentityCard();
+
+        if (!IsNameValid || !IsCardValid)
+        {
+            return new PagedResultDto<CustomerLookupDto>([], page, pageSize, 0);
+        }
+
+        try
+        {
+            LastSearchedName = FilterName;
+            LastSearchedIdentityCard = FilterIdentityCard;
+            var Criteria = new SearchCustomersDto(FilterName, FilterIdentityCard, page, pageSize);
+            return await Gateway.SearchAsync(Criteria);
+        }
+        catch (OperationCanceledException)
+        {
+            return new PagedResultDto<CustomerLookupDto>([], page, pageSize, 0);
+        }
+        catch (HttpRequestException ex)
+        {
+            if (ex.Data["Errors"] is IEnumerable<ValidationError> errors)
+            {
+                foreach (var err in errors)
+                {
+                    if (err.PropertyName.Equals(nameof(SearchCustomersDto.Name), StringComparison.OrdinalIgnoreCase))
+                        NameValidationError = err.Message;
+                    else if (err.PropertyName.Equals(nameof(SearchCustomersDto.IdentityCard), StringComparison.OrdinalIgnoreCase))
+                        IdentityCardValidationError = err.Message;
+                    else
+                        ServerError = err.Message;
+                }
+            }
+            else
+            {
+                ServerError = ex.Message;
+            }
+            return new PagedResultDto<CustomerLookupDto>([], page, pageSize, 0);
+        }
+        catch (Exception ex)
+        {
+            ServerError = ex.Message;
+            return new PagedResultDto<CustomerLookupDto>([], page, pageSize, 0);
+        }
+    }
+}

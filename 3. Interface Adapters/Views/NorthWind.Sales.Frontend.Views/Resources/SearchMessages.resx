@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="SearchCustomersTitle" xml:space="preserve"><value>Búsqueda de Clientes</value></data>
+  <data name="SearchProductsTitle" xml:space="preserve"><value>Búsqueda de Productos en Stock</value></data>
+  <data name="SearchInvoicesTitle" xml:space="preserve"><value>Búsqueda de Facturas</value></data>
+  <data name="FilterNameLabel" xml:space="preserve"><value>Nombre</value></data>
+  <data name="FilterIdentityCardLabel" xml:space="preserve"><value>Cédula</value></data>
+  <data name="FilterCodeLabel" xml:space="preserve"><value>Código</value></data>
+  <data name="FilterInvoiceNumberLabel" xml:space="preserve"><value>N° de Factura</value></data>
+  <data name="FilterCustomerNameLabel" xml:space="preserve"><value>Nombre del Cliente</value></data>
+  <data name="CustomerIdHeader" xml:space="preserve"><value>Id</value></data>
+  <data name="CustomerNameHeader" xml:space="preserve"><value>Nombre</value></data>
+  <data name="CustomerIdentityCardHeader" xml:space="preserve"><value>Cédula</value></data>
+  <data name="CustomerEmailHeader" xml:space="preserve"><value>Email</value></data>
+  <data name="CustomerCityHeader" xml:space="preserve"><value>Ciudad</value></data>
+  <data name="CustomerBalanceHeader" xml:space="preserve"><value>Saldo</value></data>
+  <data name="ProductCodeHeader" xml:space="preserve"><value>Código</value></data>
+  <data name="ProductNameHeader" xml:space="preserve"><value>Producto</value></data>
+  <data name="ProductPriceHeader" xml:space="preserve"><value>Precio</value></data>
+  <data name="ProductStockHeader" xml:space="preserve"><value>Stock</value></data>
+  <data name="ProductTaxRateHeader" xml:space="preserve"><value>IVA %</value></data>
+  <data name="InvoiceNumberHeader" xml:space="preserve"><value>N° Factura</value></data>
+  <data name="InvoiceDateHeader" xml:space="preserve"><value>Fecha</value></data>
+  <data name="InvoiceCustomerHeader" xml:space="preserve"><value>Cliente</value></data>
+  <data name="InvoiceTotalHeader" xml:space="preserve"><value>Total</value></data>
+  <data name="ActionsHeader" xml:space="preserve"><value>Acciones</value></data>
+  <data name="NoResultsMessage" xml:space="preserve"><value>Sin resultados</value></data>
+  <data name="SearchButtonText" xml:space="preserve"><value>Buscar</value></data>
+  <data name="CloseButtonText" xml:space="preserve"><value>Cerrar</value></data>
+  <data name="SelectButtonText" xml:space="preserve"><value>Seleccionar</value></data>
+  <data name="LoadingMessage" xml:space="preserve"><value>Buscando...</value></data>
+</root>

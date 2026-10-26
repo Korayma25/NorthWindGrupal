@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.12" />
+    <ProjectReference Include="..\..\..\1. Enterprise Business Rules\NorthWind.Validation.Entities\NorthWind.Validation.Entities.csproj" />
+    <ProjectReference Include="..\..\..\1. Enterprise Business Rules\NorthWind.Sales.Validators.Entities\NorthWind.Sales.Validators.Entities.csproj" />
+    <ProjectReference Include="..\..\..\2. Application Business Rules\NorthWind.Sales.Frontend.BusinessObjects\NorthWind.Sales.Frontend.BusinessObjects.csproj" />
+    <ProjectReference Include="..\NorthWind.RazorComponents\NorthWind.RazorComponents.csproj" />
+    <ProjectReference Include="..\NorthWind.Membership.Frontend.RazorViews\NorthWind.Membership.Frontend.RazorViews.csproj" />
+  </ItemGroup>
+
+</Project>

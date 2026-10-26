@@ -1,0 +1,296 @@
+@page "/invoices/{Id:int}"
+@attribute [Authorize]
+@inject InvoiceDetailViewModel ViewModel
+
+<PageTitle>@InvoiceMessages.InvoiceDetailTitle - @(ViewModel.Invoice?.InvoiceNumber ?? Id.ToString())</PageTitle>
+
+<ErrorBoundary @ref="ErrorBoundaryRef">
+    <ChildContent>
+        <div class="container-fluid p-0">
+            <!-- Encabezado con navegación de regreso -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="/invoices" class="btn btn-outline-secondary btn-sm" title="@InvoiceMessages.BackToListButtonText">
+                        <i class="bi bi-arrow-left"></i> @InvoiceMessages.BackToListButtonText
+                    </a>
+                    <h4 class="mb-0 fw-bold">@InvoiceMessages.InvoiceDetailTitle</h4>
+                </div>
+                @if (ViewModel.Invoice != null)
+                {
+                    <button type="button"
+                            class="btn btn-primary btn-sm"
+                            @onclick="OnLoadPdfAsync"
+                            disabled="@IsLoadingPdf">
+                        @if (IsLoadingPdf)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span>Cargando PDF...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-file-earmark-pdf me-1"></i>
+                            <span>@InvoiceMessages.ViewInvoicePdfButtonText</span>
+                        }
+                    </button>
+                }
+            </div>
+
+            <!-- Alerta de Error / Factura no encontrada -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <MessageAlert Type="danger">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <span>@ErrorMessage</span>
+                    </div>
+                </MessageAlert>
+            }
+
+            <!-- Estado de carga -->
+            @if (ViewModel.IsLoading && ViewModel.Invoice == null)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">@InvoiceMessages.LoadingInvoice</span>
+                    </div>
+                    <div class="text-muted small mt-2">@InvoiceMessages.LoadingInvoice</div>
+                </div>
+            }
+            else if (ViewModel.Invoice != null)
+            {
+                var invoice = ViewModel.Invoice;
+
+                <!-- Cabecera de la Factura y Datos del Cliente -->
+                <div class="row g-3 mb-4">
+                    <!-- Datos de la Factura -->
+                    <div class="col-md-4">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-primary text-white fw-semibold">
+                                <i class="bi bi-receipt me-1"></i> @InvoiceMessages.InvoiceDetailTitle
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <span class="text-muted small d-block">@InvoiceMessages.InvoiceNumberLabel</span>
+                                    <span class="fs-5 fw-bold text-dark">@invoice.InvoiceNumber</span>
+                                </div>
+                                <div class="mb-2">
+                                    <span class="text-muted small d-block">@InvoiceMessages.OrderDateLabel</span>
+                                    <span class="fw-medium text-dark">@invoice.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                                </div>
+                                <div>
+                                    <span class="text-muted small d-block">ID Transacción</span>
+                                    <span class="badge bg-secondary">#@invoice.Id</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del Cliente -->
+                    <div class="col-md-8">
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-header bg-light fw-semibold">
+                                <i class="bi bi-person-badge me-1"></i> Datos del Cliente
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerLabel</span>
+                                        <span class="fw-bold text-dark">@invoice.CustomerName</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerCardLabel</span>
+                                        <span class="fw-bold text-dark">@invoice.CustomerIdentityCard</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerEmailLabel</span>
+                                        <span class="text-dark">@(string.IsNullOrWhiteSpace(invoice.CustomerEmail) ? "-" : invoice.CustomerEmail)</span>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerAddressLabel</span>
+                                        <span class="text-dark">@invoice.CustomerAddress</span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerCityLabel</span>
+                                        <span class="text-dark">@invoice.CustomerCity</span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <span class="text-muted small d-block">@InvoiceMessages.CustomerCountryLabel</span>
+                                        <span class="text-dark">@invoice.CustomerCountry</span>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <span class="text-muted small d-block">Código Postal</span>
+                                        <span class="text-dark">@(string.IsNullOrWhiteSpace(invoice.CustomerPostalCode) ? "-" : invoice.CustomerPostalCode)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Detalle -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light fw-semibold">
+                        <i class="bi bi-list-check me-1"></i> @InvoiceMessages.ItemsHeader
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 15%;">@InvoiceMessages.ProductCodeHeader</th>
+                                        <th style="width: 35%;">@InvoiceMessages.ProductNameHeader</th>
+                                        <th class="text-center" style="width: 10%;">@InvoiceMessages.QuantityHeader</th>
+                                        <th class="text-end" style="width: 12%;">@InvoiceMessages.UnitPriceHeader</th>
+                                        <th class="text-center" style="width: 10%;">@InvoiceMessages.TaxRateHeader</th>
+                                        <th class="text-end" style="width: 18%;">@InvoiceMessages.LineSubtotalHeader</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var line in invoice.Lines)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold text-secondary">@line.ProductCode</td>
+                                            <td class="fw-medium text-dark">@line.ProductName</td>
+                                            <td class="text-center">@line.Quantity</td>
+                                            <td class="text-end">$@line.UnitPrice.ToString("N2")</td>
+                                            <td class="text-center">@((line.TaxRate * 100).ToString("0.##"))%</td>
+                                            <td class="text-end fw-bold">$@line.LineSubtotal.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totales y Resumen -->
+                <div class="row justify-content-end mb-4">
+                    <div class="col-md-5 col-lg-4">
+                        <div class="card shadow-sm border-0 invoice-totals-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">@InvoiceMessages.SubtotalLabel:</span>
+                                    <span class="fw-semibold">$@invoice.Subtotal.ToString("N2")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">@InvoiceMessages.DiscountLabel:</span>
+                                    <span class="text-danger fw-semibold">-$@invoice.DiscountAmount.ToString("N2")</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">@InvoiceMessages.TaxLabel:</span>
+                                    <span class="fw-semibold">$@invoice.TaxAmount.ToString("N2")</span>
+                                </div>
+                                <hr class="my-2" />
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fs-5 fw-bold text-dark">@InvoiceMessages.TotalLabel:</span>
+                                    <span class="fs-4 fw-bold total-highlight">$@invoice.Total.ToString("N2")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visor de PDF (si se cargó) -->
+                @if (ShowPdf && ViewModel.PdfContent != null && ViewModel.PdfContent.Length > 0)
+                {
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">
+                                <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>
+                                Vista Previa del Documento (PDF)
+                            </span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="() => ShowPdf = false">
+                                <i class="bi bi-x-lg"></i> Cerrar Visor
+                            </button>
+                        </div>
+                        <div class="card-body p-2">
+                            <PdfViewer Content="ViewModel.PdfContent" FileName="@($"Factura-{invoice.InvoiceNumber}.pdf")" />
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </ChildContent>
+    <ErrorContent Context="context">
+        <MessageAlert Type="danger">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <span>@context.Message</span>
+            </div>
+        </MessageAlert>
+        <button class="btn btn-danger btn-sm mt-2" @onclick="Recover">
+            @CommonMessages.OK
+        </button>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ErrorBoundary? ErrorBoundaryRef;
+    private string? ErrorMessage;
+    private bool ShowPdf;
+    private bool IsLoadingPdf;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ErrorMessage = null;
+        ShowPdf = false;
+        try
+        {
+            await ViewModel.LoadAsync(Id);
+            if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+            {
+                ErrorMessage = ViewModel.ErrorMessage;
+            }
+            else if (ViewModel.Invoice == null)
+            {
+                ErrorMessage = InvoiceMessages.InvoiceNotFound;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    private async Task OnLoadPdfAsync()
+    {
+        ErrorMessage = null;
+        IsLoadingPdf = true;
+        try
+        {
+            await ViewModel.LoadPdfAsync(Id);
+            if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+            {
+                ErrorMessage = ViewModel.ErrorMessage;
+            }
+            else if (ViewModel.PdfContent != null)
+            {
+                ShowPdf = true;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoadingPdf = false;
+        }
+    }
+
+    private void Recover()
+    {
+        ErrorBoundaryRef?.Recover();
+    }
+}

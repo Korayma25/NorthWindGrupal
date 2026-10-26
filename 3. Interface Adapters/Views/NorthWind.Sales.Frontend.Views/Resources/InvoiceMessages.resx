@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="InvoiceDetailTitle" xml:space="preserve"><value>Detalle de Factura</value></data>
+  <data name="InvoiceSearchTitle" xml:space="preserve"><value>Consultar Facturas</value></data>
+  <data name="InvoiceCreatedMessage" xml:space="preserve"><value>Factura creada</value></data>
+  <data name="InvoiceCreatedSuccess" xml:space="preserve"><value>Factura {0} generada con éxito.</value></data>
+  <data name="ViewInvoicePdfButtonText" xml:space="preserve"><value>Ver Factura (PDF)</value></data>
+  <data name="DownloadPdfButtonText" xml:space="preserve"><value>Descargar PDF</value></data>
+  <data name="PrintPdfButtonText" xml:space="preserve"><value>Imprimir</value></data>
+  <data name="BackToListButtonText" xml:space="preserve"><value>Volver al listado</value></data>
+  <data name="InvoiceNumberLabel" xml:space="preserve"><value>N° de Factura</value></data>
+  <data name="OrderDateLabel" xml:space="preserve"><value>Fecha de Emisión</value></data>
+  <data name="CustomerLabel" xml:space="preserve"><value>Cliente</value></data>
+  <data name="CustomerCardLabel" xml:space="preserve"><value>Cédula / RUC</value></data>
+  <data name="CustomerEmailLabel" xml:space="preserve"><value>Correo Electrónico</value></data>
+  <data name="CustomerAddressLabel" xml:space="preserve"><value>Dirección</value></data>
+  <data name="CustomerCityLabel" xml:space="preserve"><value>Ciudad</value></data>
+  <data name="CustomerCountryLabel" xml:space="preserve"><value>País</value></data>
+  <data name="SubtotalLabel" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="DiscountLabel" xml:space="preserve"><value>Descuento</value></data>
+  <data name="TaxLabel" xml:space="preserve"><value>IVA</value></data>
+  <data name="TotalLabel" xml:space="preserve"><value>Total</value></data>
+  <data name="ItemsHeader" xml:space="preserve"><value>Líneas de la Factura</value></data>
+  <data name="ProductCodeHeader" xml:space="preserve"><value>Código</value></data>
+  <data name="ProductNameHeader" xml:space="preserve"><value>Descripción</value></data>
+  <data name="QuantityHeader" xml:space="preserve"><value>Cant.</value></data>
+  <data name="UnitPriceHeader" xml:space="preserve"><value>Precio Unit.</value></data>
+  <data name="TaxRateHeader" xml:space="preserve"><value>IVA %</value></data>
+  <data name="LineSubtotalHeader" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="InvoiceNotFound" xml:space="preserve"><value>La factura solicitada no existe o no fue encontrada.</value></data>
+  <data name="LoadingInvoice" xml:space="preserve"><value>Cargando factura...</value></data>
+  <data name="InvoicesMenuItemTitle" xml:space="preserve"><value>Facturas</value></data>
+</root>

@@ -1,0 +1,67 @@
+<app-search-modal
+  [title]="es.search.searchProductsTitle"
+  [(visible)]="visible"
+  [loader]="loadProducts"
+  [canSearch]="canSearchProduct"
+  [debounceMilliseconds]="debounceMilliseconds()"
+  [minSearchLength]="minSearchLength()"
+  [headerTemplate]="headerTpl"
+  [rowTemplate]="rowTpl"
+  (selected)="onProductSelected($event)"
+>
+  <div class="row g-2" filters>
+    <div class="col-md-6">
+      <label class="form-label small mb-1">{{ es.search.filterNameLabel }}</label>
+      <input
+        type="text"
+        maxlength="60"
+        appCharFilter="letters"
+        class="form-control form-control-sm"
+        placeholder="Buscar por nombre..."
+        [value]="filterName()"
+        (input)="onNameInput($event)"
+      />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label small mb-1">{{ es.search.filterCodeLabel }}</label>
+      <input
+        type="text"
+        maxlength="20"
+        class="form-control form-control-sm"
+        placeholder="Buscar por código..."
+        [value]="filterCode()"
+        (input)="onCodeInput($event)"
+      />
+    </div>
+    @if (serverError()) {
+      <div class="col-12">
+        <div class="alert alert-danger py-1 px-2 small mt-2 mb-0" role="alert">
+          {{ serverError() }}
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template #headerTpl>
+    <th>{{ es.search.productCodeHeader }}</th>
+    <th>{{ es.search.productNameHeader }}</th>
+    <th class="text-end">{{ es.search.productPriceHeader }}</th>
+    <th class="text-end">{{ es.search.productStockHeader }}</th>
+    <th class="text-end">{{ es.search.productTaxRateHeader }}</th>
+  </ng-template>
+
+  <ng-template #rowTpl let-product>
+    <td class="fw-bold">{{ product.code }}</td>
+    <td>{{ product.name }}</td>
+    <td class="text-end">${{ product.unitPrice | number: '1.2-2' }}</td>
+    <td class="text-end">
+      <span
+        class="badge"
+        [ngClass]="product.unitsInStock <= 3 ? 'bg-warning text-dark' : 'bg-success'"
+      >
+        {{ product.unitsInStock }}
+      </span>
+    </td>
+    <td class="text-end">{{ formatTaxRate(product.taxRate) }}</td>
+  </ng-template>
+</app-search-modal>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Inicio - NorthWind Sales</value></data>
+  <data name="AppTitle" xml:space="preserve"><value>NorthWind Sales Trueno</value></data>
+  <data name="AppSubtitle" xml:space="preserve"><value>Sistema de punto de venta y facturación</value></data>
+  <data name="CreateOrderCardTitle" xml:space="preserve"><value>Crear orden</value></data>
+  <data name="CreateOrderCardDescription" xml:space="preserve"><value>Registra una nueva venta</value></data>
+  <data name="InvoicesCardTitle" xml:space="preserve"><value>Facturas</value></data>
+  <data name="InvoicesCardDescription" xml:space="preserve"><value>Consulta y descarga tus facturas</value></data>
+  <data name="OpenButton" xml:space="preserve"><value>Abrir</value></data>
+  <data name="WelcomeMessage" xml:space="preserve"><value>Bienvenido a NorthWind Sales Trueno</value></data>
+</root>

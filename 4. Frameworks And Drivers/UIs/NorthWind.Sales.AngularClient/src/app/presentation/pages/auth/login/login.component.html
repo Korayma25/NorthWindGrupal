@@ -1,0 +1,60 @@
+<div class="d-flex justify-content-center align-items-center py-4">
+  <div class="card shadow-sm border-0 auth-card" style="max-width: 420px; width: 100%;">
+    <div class="card-header bg-navy text-white text-center py-3">
+      <h5 class="mb-0 fw-bold">{{ es.common.loginText }}</h5>
+    </div>
+    <div class="card-body p-4">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        @if (generalError()) {
+          <div class="alert alert-danger mb-3" role="alert">
+            {{ generalError() }}
+          </div>
+        }
+
+        <div class="mb-3">
+          <label for="Email" class="form-label">{{ es.membership.emailLabel }}</label>
+          <input
+            type="text"
+            id="Email"
+            formControlName="email"
+            appCharFilter="login"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('email')"
+            [placeholder]="es.membership.emailLabel"
+          />
+          @if (isFieldInvalid('email')) {
+            <div class="invalid-feedback d-block">
+              {{ getEmailErrorMessage() }}
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label for="Password" class="form-label">{{ es.membership.passwordLabel }}</label>
+          <input
+            type="password"
+            id="Password"
+            formControlName="password"
+            class="form-control"
+            [class.is-invalid]="isFieldInvalid('password')"
+            [placeholder]="es.membership.passwordLabel"
+          />
+          @if (isFieldInvalid('password')) {
+            <div class="invalid-feedback d-block">
+              {{ getPasswordErrorMessage() }}
+            </div>
+          }
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-primary w-100" type="submit" [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            }
+            {{ es.membership.loginButtonText }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

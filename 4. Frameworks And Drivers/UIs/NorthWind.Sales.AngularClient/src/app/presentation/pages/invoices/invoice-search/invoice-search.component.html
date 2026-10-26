@@ -1,0 +1,134 @@
+<div class="container-fluid p-0">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 fw-bold">{{ es.invoices.invoiceSearchTitle }}</h4>
+  </div>
+
+  <!-- Card de Filtros -->
+  <div class="card shadow-sm border-0 mb-4 pos-card">
+    <div class="card-body">
+      <form (submit)="onSearchSubmit(); $event.preventDefault()">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label small text-muted">{{ es.invoices.invoiceNumberLabel }}</label>
+            <input
+              type="text"
+              maxlength="17"
+              inputmode="numeric"
+              class="form-control form-control-sm"
+              [placeholder]="es.invoices.invoiceNumberPlaceholder"
+              appCharFilter="digitsHyphen"
+              [value]="invoiceNumber()"
+              (input)="onInvoiceNumberInput($event)"
+              id="filter-invoice-number"
+            />
+            @if (fieldErrors()['InvoiceNumber']) {
+              <div class="text-danger small mt-1">{{ fieldErrors()['InvoiceNumber'] }}</div>
+            }
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small text-muted">{{ es.invoices.customerLabel }}</label>
+            <input
+              type="text"
+              maxlength="40"
+              class="form-control form-control-sm"
+              [class.is-invalid]="customerNameValidationError() !== null"
+              [placeholder]="es.invoices.customerNamePlaceholder"
+              appCharFilter="letters"
+              [value]="customerName()"
+              (input)="onCustomerNameInput($event)"
+              id="filter-customer-name"
+            />
+            @if (customerNameValidationError()) {
+              <div class="text-danger small mt-1">{{ customerNameValidationError() }}</div>
+            }
+            @if (fieldErrors()['CustomerName']) {
+              <div class="text-danger small mt-1">{{ fieldErrors()['CustomerName'] }}</div>
+            }
+          </div>
+          <div class="col-md-2">
+            <button
+              type="submit"
+              class="btn btn-primary btn-sm w-100"
+              [disabled]="isLoading()"
+              id="search-invoices-btn"
+            >
+              @if (isLoading()) {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <span>{{ es.search.loadingMessage }}</span>
+              } @else {
+                <i class="bi bi-search me-1"></i>
+                <span>{{ es.search.searchButtonText }}</span>
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger shadow-sm border-0 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Resultados -->
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ es.search.loadingMessage }}</span>
+      </div>
+    </div>
+  } @else if (invoices()?.items && invoices()!.items.length > 0) {
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ es.search.invoiceNumberHeader }}</th>
+                <th>{{ es.search.invoiceDateHeader }}</th>
+                <th>{{ es.search.invoiceCustomerHeader }}</th>
+                <th>{{ es.search.customerIdentityCardHeader }}</th>
+                <th class="text-end">{{ es.search.invoiceTotalHeader }}</th>
+                <th class="text-center" style="width: 100px;">{{ es.search.actionsHeader }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of invoices()!.items; track invoice.id) {
+                <tr>
+                  <td class="fw-bold">{{ invoice.invoiceNumber }}</td>
+                  <td>{{ invoice.orderDate | dateFormat: 'shortDate' }}</td>
+                  <td>{{ invoice.customerName }}</td>
+                  <td>{{ invoice.customerIdentityCard }}</td>
+                  <td class="text-end fw-bold">{{ invoice.total | currencyFormat }}</td>
+                  <td class="text-center">
+                    <a
+                      [routerLink]="['/invoices', invoice.id]"
+                      class="btn btn-outline-primary btn-sm"
+                      [id]="'view-invoice-' + invoice.id"
+                    >
+                      {{ es.invoices.viewButtonText }}
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 py-2">
+        <app-pager
+          [page]="page()"
+          [totalPages]="invoices()?.totalPages ?? 1"
+          (pageChange)="onPageChanged($event)"
+        />
+      </div>
+    </div>
+  } @else {
+    <div class="alert alert-info text-center my-3 shadow-sm border-0" role="alert" id="no-invoices-alert">
+      {{ es.search.noResultsMessage }}
+    </div>
+  }
+</div>

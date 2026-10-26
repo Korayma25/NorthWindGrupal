@@ -1,0 +1,37 @@
+@using NorthWind.Membership.Frontend.RazorViews.Resources
+@using NorthWind.Membership.Frontend.RazorViews.ViewModels.UserLogin
+@using LoginMessages = NorthWind.Membership.Frontend.RazorViews.Resources.UserLoginMessages
+
+<EditForm Model="ViewModel" OnValidSubmit="ViewModel.Login">
+    <ModelValidator Validator="ViewModel.Validator" @ref="ViewModel.ModelValidatorComponentReference" />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="Email">@CommonMessages.EmailLabel</label>
+        <input type="text" id="Email" class="form-control" placeholder="@CommonMessages.EmailLabel" @bind:get="ViewModel.Email" @bind:set="OnEmailInput" @bind:event="oninput" />
+        <ValidationMessage For="@(() => ViewModel.Email)" />
+    </div>
+    <div class="form-group">
+        <label for="Password">@CommonMessages.PasswordLabel</label>
+        <InputText id="Password" class="form-control" placeholder="@CommonMessages.PasswordLabel" type="password" @bind-Value="ViewModel.Password" />
+        <ValidationMessage For="@(() => ViewModel.Password)" />
+    </div>
+    <div class="row p-3">
+        <div class="col">
+            <button class="btn btn-primary">@LoginMessages.LoginButtonText</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public UserLoginViewModel ViewModel { get; set; } = default!;
+
+    [CascadingParameter]
+    private EditContext? EditContext { get; set; }
+
+    private void OnEmailInput(string? value)
+    {
+        ViewModel.Email = MembershipTextRules.KeepLoginCharacters(value);
+        EditContext?.NotifyFieldChanged(FieldIdentifier.Create(() => ViewModel.Email));
+    }
+}

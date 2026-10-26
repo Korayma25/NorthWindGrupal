@@ -1,0 +1,144 @@
+@inject ISearchProductsGateway Gateway
+
+<SearchModal TItem="ProductLookupDto"
+             Title="@SearchMessages.SearchProductsTitle"
+             Visible="Visible"
+             VisibleChanged="VisibleChanged"
+             Loader="LoadProductsAsync"
+             OnSelected="OnSelected"
+             CanSearch="CanSearchProduct"
+             DebounceMilliseconds="DebounceMilliseconds"
+             MinSearchLength="MinSearchLength">
+    <Filters>
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label class="form-label small mb-1">@SearchMessages.FilterNameLabel</label>
+                <input type="text"
+                       maxlength="60"
+                       class="form-control form-control-sm"
+                       placeholder="Buscar por nombre..."
+                       @bind:get="FilterName"
+                       @bind:set="OnNameInput"
+                       @bind:event="oninput" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small mb-1">@SearchMessages.FilterCodeLabel</label>
+                <input type="text"
+                       class="form-control form-control-sm"
+                       placeholder="Buscar por código..."
+                       @bind="FilterCode"
+                       @bind:event="oninput" />
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(ServerError))
+        {
+            <div class="alert alert-danger py-1 px-2 small mt-2 mb-0">@ServerError</div>
+        }
+    </Filters>
+    <HeaderTemplate>
+        <th>@SearchMessages.ProductCodeHeader</th>
+        <th>@SearchMessages.ProductNameHeader</th>
+        <th class="text-end">@SearchMessages.ProductPriceHeader</th>
+        <th class="text-end">@SearchMessages.ProductStockHeader</th>
+        <th class="text-end">@SearchMessages.ProductTaxRateHeader</th>
+    </HeaderTemplate>
+    <RowTemplate Context="product">
+        <td class="fw-bold">@product.Code</td>
+        <td>@product.Name</td>
+        <td class="text-end">$@product.UnitPrice.ToString("N2")</td>
+        <td class="text-end">
+            <span class="badge @(product.UnitsInStock <= 3 ? "bg-warning text-dark" : "bg-success")">
+                @product.UnitsInStock
+            </span>
+        </td>
+        <td class="text-end">@($"{product.TaxRate * 100:0.##}%")</td>
+    </RowTemplate>
+</SearchModal>
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ProductLookupDto> OnSelected { get; set; }
+
+    [Parameter]
+    public int DebounceMilliseconds { get; set; } = 400;
+
+    [Parameter]
+    public int MinSearchLength { get; set; } = 2;
+
+    private string FilterName = string.Empty;
+    private string FilterCode = string.Empty;
+    private string? ServerError;
+    private bool PreviousVisible;
+    private string LastSearchedName = string.Empty;
+    private string LastSearchedCode = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        if (Visible && !PreviousVisible)
+        {
+            FilterName = string.Empty;
+            FilterCode = string.Empty;
+            ServerError = null;
+            LastSearchedName = string.Empty;
+            LastSearchedCode = string.Empty;
+        }
+        PreviousVisible = Visible;
+    }
+
+    private void OnNameInput(string? value)
+    {
+        var filtered = TextRules.KeepLetters(value);
+        if (filtered.Length > 60)
+        {
+            filtered = filtered[..60];
+        }
+        FilterName = filtered;
+    }
+
+    private bool CanSearchProduct()
+    {
+        if (FilterName.Length == 1)
+        {
+            return false;
+        }
+
+        if (FilterName == LastSearchedName && FilterCode == LastSearchedCode)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<PagedResultDto<ProductLookupDto>> LoadProductsAsync(int page, int pageSize)
+    {
+        ServerError = null;
+        try
+        {
+            LastSearchedName = FilterName;
+            LastSearchedCode = FilterCode;
+            var Criteria = new SearchProductsDto(FilterName, FilterCode, page, pageSize);
+            return await Gateway.SearchAsync(Criteria);
+        }
+        catch (OperationCanceledException)
+        {
+            return new PagedResultDto<ProductLookupDto>([], page, pageSize, 0);
+        }
+        catch (HttpRequestException ex)
+        {
+            ServerError = ex.Message;
+            return new PagedResultDto<ProductLookupDto>([], page, pageSize, 0);
+        }
+        catch (Exception ex)
+        {
+            ServerError = ex.Message;
+            return new PagedResultDto<ProductLookupDto>([], page, pageSize, 0);
+        }
+    }
+}

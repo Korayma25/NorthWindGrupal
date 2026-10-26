@@ -1,0 +1,232 @@
+@typeparam TItem
+@implements IDisposable
+
+@if (Visible)
+{
+    <div class="modal d-block fade show" tabindex="-1" role="dialog" style="background-color: rgba(11, 15, 26, 0.75);" @onkeydown="HandleKeyDown">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseAsync"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 align-items-end mb-3">
+                        <div class="col" @oninput="HandleFilterInput">
+                            @Filters
+                        </div>
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-primary" @onclick="HandleSearchButtonClick" disabled="@IsLoading">
+                                @if (IsLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                    <span>Buscando...</span>
+                                }
+                                else
+                                {
+                                    <span>Buscar</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (IsLoading)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                    }
+                    else if (Items != null && Items.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        @HeaderTemplate
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Items)
+                                    {
+                                        <tr style="cursor: pointer;" @onclick="() => SelectItemAsync(item)">
+                                            @RowTemplate(item)
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <Pager Page="@CurrentPage" TotalPages="@TotalPages" PageChanged="OnPageChangedAsync" />
+                    }
+                    else if (HasSearched)
+                    {
+                        <div class="alert alert-info text-center my-3 mb-0" role="alert">
+                            Sin resultados
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseAsync">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment? Filters { get; set; }
+
+    [Parameter]
+    public Func<int, int, Task<PagedResultDto<TItem>>> Loader { get; set; } = null!;
+
+    [Parameter]
+    public RenderFragment? HeaderTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem> RowTemplate { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback<TItem> OnSelected { get; set; }
+
+    [Parameter]
+    public int PageSize { get; set; } = 5;
+
+    [Parameter]
+    public int DebounceMilliseconds { get; set; } = 400;
+
+    [Parameter]
+    public int MinSearchLength { get; set; } = 2;
+
+    [Parameter]
+    public Func<bool>? CanSearch { get; set; }
+
+    private readonly SearchDebouncer Debouncer = new();
+    private IEnumerable<TItem>? Items { get; set; }
+    private int CurrentPage { get; set; } = 1;
+    private int TotalPages { get; set; } = 1;
+    private bool IsLoading { get; set; }
+    private bool HasSearched { get; set; }
+    private bool PreviousVisible { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Debouncer.DebounceMilliseconds = DebounceMilliseconds;
+
+        if (Visible && !PreviousVisible)
+        {
+            CurrentPage = 1;
+            TotalPages = 1;
+            Items = null;
+            HasSearched = false;
+            await Debouncer.ExecuteImmediateAsync(SearchInternalAsync);
+        }
+        else if (!Visible && PreviousVisible)
+        {
+            Debouncer.CancelAll();
+            IsLoading = false;
+        }
+        PreviousVisible = Visible;
+    }
+
+    public async Task NotifyFilterChanged()
+    {
+        await Debouncer.DebounceAsync(async version =>
+        {
+            CurrentPage = 1;
+            await SearchInternalAsync(version);
+        }, CanSearch);
+    }
+
+    private async Task HandleFilterInput()
+    {
+        await NotifyFilterChanged();
+    }
+
+    public async Task SearchAsync()
+    {
+        CurrentPage = 1;
+        await Debouncer.ExecuteImmediateAsync(SearchInternalAsync);
+    }
+
+    private async Task HandleSearchButtonClick()
+    {
+        CurrentPage = 1;
+        await Debouncer.ExecuteImmediateAsync(SearchInternalAsync);
+    }
+
+    private async Task OnPageChangedAsync(int newPage)
+    {
+        CurrentPage = newPage;
+        await Debouncer.ExecuteImmediateAsync(SearchInternalAsync);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            CurrentPage = 1;
+            await Debouncer.ExecuteImmediateAsync(SearchInternalAsync);
+        }
+    }
+
+    private async Task SearchInternalAsync(long version)
+    {
+        if (Loader == null) return;
+
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var Result = await Loader(CurrentPage, PageSize);
+            if (Debouncer.IsLatest(version))
+            {
+                Items = Result?.Items ?? [];
+                TotalPages = Result?.TotalPages ?? 0;
+                HasSearched = true;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore cancellation
+        }
+        finally
+        {
+            if (Debouncer.IsLatest(version))
+            {
+                IsLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        Debouncer.CancelAll();
+        IsLoading = false;
+        Visible = false;
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task SelectItemAsync(TItem item)
+    {
+        await OnSelected.InvokeAsync(item);
+        await CloseAsync();
+    }
+
+    public void Dispose()
+    {
+        Debouncer.Dispose();
+    }
+}

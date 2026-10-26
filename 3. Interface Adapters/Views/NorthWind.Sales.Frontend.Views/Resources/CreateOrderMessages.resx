@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="CustomerIdLabel" xml:space="preserve"><value>Id del cliente</value></data>
+  <data name="CustomerLabel" xml:space="preserve"><value>Cliente</value></data>
+  <data name="CustomerCardLabel" xml:space="preserve"><value>Cédula</value></data>
+  <data name="CustomerNameLabel" xml:space="preserve"><value>Nombre del cliente</value></data>
+  <data name="ShipAddressLabel" xml:space="preserve"><value>Dirección</value></data>
+  <data name="ShipCityLabel" xml:space="preserve"><value>Ciudad</value></data>
+  <data name="ShipCountryLabel" xml:space="preserve"><value>País</value></data>
+  <data name="ShipPostalCodeLabel" xml:space="preserve"><value>Código Postal</value></data>
+  <data name="ProductIdLabel" xml:space="preserve"><value>Id de Producto</value></data>
+  <data name="ProductLabel" xml:space="preserve"><value>Producto</value></data>
+  <data name="ProductCodeLabel" xml:space="preserve"><value>Código</value></data>
+  <data name="ProductNameLabel" xml:space="preserve"><value>Nombre del producto</value></data>
+  <data name="UnitPriceLabel" xml:space="preserve"><value>Precio</value></data>
+  <data name="QuantityLabel" xml:space="preserve"><value>Cantidad</value></data>
+  <data name="UnitsInStockLabel" xml:space="preserve"><value>Stock disponible</value></data>
+  <data name="SubtotalLabel" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="TaxRateLabel" xml:space="preserve"><value>Tarifa IVA</value></data>
+  <data name="TaxAmountLabel" xml:space="preserve"><value>IVA</value></data>
+  <data name="DiscountLabel" xml:space="preserve"><value>Descuento</value></data>
+  <data name="DiscountAmountLabel" xml:space="preserve"><value>Monto de descuento</value></data>
+  <data name="TotalLabel" xml:space="preserve"><value>Total</value></data>
+  <data name="SearchCustomerButtonText" xml:space="preserve"><value>Buscar cliente</value></data>
+  <data name="AddProductButtonText" xml:space="preserve"><value>Agregar producto</value></data>
+  <data name="ChangeCustomerButtonText" xml:space="preserve"><value>Cambiar</value></data>
+  <data name="RemoveProductButtonText" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="RemoveProductTitle" xml:space="preserve"><value>Eliminar producto</value></data>
+  <data name="RemoveProductConfirmation" xml:space="preserve"><value>¿Seguro que deseas eliminar el producto {0}?</value></data>
+  <data name="RemoveProductConfirmButton" xml:space="preserve"><value>Eliminar</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="SaveOrderButtonText" xml:space="preserve"><value>Guardar</value></data>
+  <data name="SendButtonText" xml:space="preserve"><value>Enviar</value></data>
+  <data name="CreatedOrderTemplate" xml:space="preserve"><value>Orden {0} creada.</value></data>
+  <data name="CreateOrderMenuItemTitle" xml:space="preserve"><value>Crear orden</value></data>
+  <data name="CreateOrderPageTitle" xml:space="preserve"><value>Punto de Venta / Facturación</value></data>
+  <data name="DuplicateProductError" xml:space="preserve"><value>El producto ya ha sido agregado al pedido.</value></data>
+  <data name="QuantityExceedsStockError" xml:space="preserve"><value>La cantidad solicitada supera el stock disponible.</value></data>
+  <data name="CustomerRequiredError" xml:space="preserve"><value>Debe seleccionar un cliente.</value></data>
+  <data name="OrderDetailsRequiredError" xml:space="preserve"><value>Debe agregar al menos un producto a la orden.</value></data>
+  <data name="OrderCreatedSuccessTemplate" xml:space="preserve"><value>Orden {0} creada con éxito.</value></data>
+</root>

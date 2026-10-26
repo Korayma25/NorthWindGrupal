@@ -1,0 +1,31 @@
+@if (TotalPages > 0)
+{
+    <div class="d-flex align-items-center justify-content-between my-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" disabled="@(Page <= 1)" @onclick="() => OnPageChange(Page - 1)">
+            &laquo; Anterior
+        </button>
+        <span class="mx-2 text-muted small">Página @Page de @TotalPages</span>
+        <button type="button" class="btn btn-outline-secondary btn-sm" disabled="@(Page >= TotalPages)" @onclick="() => OnPageChange(Page + 1)">
+            Siguiente &raquo;
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    [Parameter]
+    public int TotalPages { get; set; } = 1;
+
+    [Parameter]
+    public EventCallback<int> PageChanged { get; set; }
+
+    private async Task OnPageChange(int newPage)
+    {
+        if (newPage >= 1 && newPage <= TotalPages && newPage != Page)
+        {
+            await PageChanged.InvokeAsync(newPage);
+        }
+    }
+}

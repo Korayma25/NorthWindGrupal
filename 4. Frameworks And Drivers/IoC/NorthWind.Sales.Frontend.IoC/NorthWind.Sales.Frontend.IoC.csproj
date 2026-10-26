@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\1. Enterprise Business Rules\NorthWind.Sales.Validators.Entities\NorthWind.Sales.Validators.Entities.csproj" />
+    <ProjectReference Include="..\..\Libraries\NorthWind.ValidationService.FluentValidation\NorthWind.ValidationService.FluentValidation.csproj" />
+    <ProjectReference Include="..\..\..\3. Interface Adapters\Gateways\WebApiGateways\NorthWind.Sales.Frontend.WebApiGateways\NorthWind.Sales.Frontend.WebApiGateways.csproj" />
+    <ProjectReference Include="..\..\..\3. Interface Adapters\Views\NorthWind.Sales.Frontend.Views\NorthWind.Sales.Frontend.Views.csproj" />
+  <ProjectReference Include="..\..\..\3. Interface Adapters\Views\NorthWind.Membership.Frontend.RazorViews\NorthWind.Membership.Frontend.RazorViews.csproj" />
+  </ItemGroup>
+
+</Project>

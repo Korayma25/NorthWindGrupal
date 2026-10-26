@@ -1,0 +1,14 @@
+global using Microsoft.AspNetCore.Http;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.CreateOrder;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.SearchCustomers;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.SearchProducts;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.SearchInvoices;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.GetInvoice;
+global using NorthWind.Sales.Backend.BusinessObjects.Interfaces.GetInvoicePdf;
+global using NorthWind.Entities.Dtos;
+global using NorthWind.Sales.Entities.Dtos.CreateOrder;
+global using NorthWind.Sales.Entities.Dtos.SearchCustomers;
+global using NorthWind.Sales.Entities.Dtos.SearchProducts;
+global using NorthWind.Sales.Entities.Dtos.SearchInvoices;
+global using NorthWind.Sales.Entities.Dtos.GetInvoice;
+global using NorthWind.Sales.Entities.ValueObjects;

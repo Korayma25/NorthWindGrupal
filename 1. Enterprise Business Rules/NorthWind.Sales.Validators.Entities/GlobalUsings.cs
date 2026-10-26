@@ -1,0 +1,10 @@
+global using NorthWind.Sales.Entities.Dtos.CreateOrder;
+global using NorthWind.Sales.Entities.Dtos.SearchCustomers;
+global using NorthWind.Sales.Entities.Dtos.SearchProducts;
+global using NorthWind.Sales.Entities.Dtos.SearchInvoices;
+global using NorthWind.Sales.Validators.Entities.Helpers;
+global using NorthWind.Sales.Validators.Entities.Resources;
+global using NorthWind.Validation.Entities.Abstractions;
+global using NorthWind.Validation.Entities.Interfaces;
+global using NorthWind.Validation.Entities.Enums;
+global using Microsoft.Extensions.DependencyInjection;

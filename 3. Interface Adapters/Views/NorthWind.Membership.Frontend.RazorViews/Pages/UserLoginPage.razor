@@ -1,0 +1,47 @@
+@using NorthWind.Membership.Frontend.RazorViews.ViewModels.UserLogin
+@page "/user/login"
+@inject UserLoginViewModel ViewModel
+@inject NavigationManager NavigationManager
+
+<ErrorBoundary @ref="ErrorBoundaryRef">
+    <ChildContent>
+        <div class="d-flex justify-content-center align-items-center py-4">
+            <div class="card shadow-sm border-0 auth-card" style="max-width: 420px; width: 100%;">
+                <div class="card-header bg-navy text-white text-center py-3">
+                    <h5 class="mb-0 fw-bold">@CommonMessages.LoginText</h5>
+                </div>
+                <div class="card-body p-4">
+                    <UserLoginComponent ViewModel="ViewModel" />
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+    <ErrorContent Context="exception">
+        <ExceptionDisplay Exception="exception" />
+        <button class="btn btn-danger" @onclick="Recover">@CommonMessages.OK</button>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private const string RouteTemplate = "/user/login";
+    private ErrorBoundary? ErrorBoundaryRef { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ViewModel.OnLogin += OnLogin;
+    }
+
+    private void OnLogin()
+    {
+        if (NavigationManager.Uri.EndsWith(RouteTemplate, StringComparison.OrdinalIgnoreCase))
+        {
+            NavigationManager.NavigateTo("");
+        }
+        else
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri);
+        }
+    }
+
+    private void Recover() => ErrorBoundaryRef?.Recover();
+}

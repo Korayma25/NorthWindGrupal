@@ -1,0 +1,26 @@
+/* ==========================================================================
+   NorthWind Design System - Blue & Black Palette Tokens
+   Exact copy from NorthWind.Sales.BlazorClient/wwwroot/css/app.css
+   ========================================================================== */
+
+:root {
+  /* Color Palette */
+  --nw-black: #0b0f1a;      /* Top bar, navigation menu, table headers */
+  --nw-ink: #111827;        /* Main text */
+  --nw-navy: #0a2540;       /* Dark secondary surfaces, card headers */
+  --nw-blue-900: #0b3d91;   /* Hover states, deep blue */
+  --nw-blue-700: #1d4ed8;   /* Primary button color, active indicators */
+  --nw-blue-500: #3b82f6;   /* Hover, links, focus rings */
+  --nw-blue-100: #dbeafe;   /* Soft backgrounds, row hover/selected */
+  --nw-blue-50: #eff6ff;    /* Cards and block backgrounds */
+  --nw-gray-200: #e5e7eb;   /* Subtle borders */
+  --nw-white: #ffffff;      /* Pure white surfaces */
+
+  /* Bootstrap 5 Variable Overrides */
+  --bs-primary: #1d4ed8;
+  --bs-primary-rgb: 29, 78, 216;
+  --bs-link-color: #1d4ed8;
+  --bs-link-hover-color: #3b82f6;
+  --bs-body-color: #111827;
+  --bs-body-bg: #f8fafc;
+}

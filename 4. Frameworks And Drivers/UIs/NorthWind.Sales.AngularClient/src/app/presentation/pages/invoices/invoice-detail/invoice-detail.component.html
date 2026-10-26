@@ -1,0 +1,222 @@
+<div class="container-fluid p-0">
+  <!-- Encabezado con navegación de regreso -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-2">
+      <a
+        routerLink="/invoices"
+        class="btn btn-outline-secondary btn-sm"
+        [title]="es.invoices.backToListButtonText"
+        id="back-to-invoices-btn"
+      >
+        <i class="bi bi-arrow-left"></i> {{ es.invoices.backToListButtonText }}
+      </a>
+      <h4 class="mb-0 fw-bold">{{ es.invoices.invoiceDetailTitle }}</h4>
+    </div>
+
+    @if (invoice()) {
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        [disabled]="isLoadingPdf()"
+        (click)="onLoadPdf()"
+        id="load-pdf-btn"
+      >
+        @if (isLoadingPdf()) {
+          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          <span>{{ es.invoices.loadingPdf }}</span>
+        } @else {
+          <i class="bi bi-file-earmark-pdf me-1"></i>
+          <span>{{ es.invoices.viewInvoicePdfButtonText }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Alerta de Error / Factura no encontrada -->
+  @if (errorMessage()) {
+    <app-message-alert [type]="'danger'" id="invoice-error-alert" class="d-block mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    </app-message-alert>
+  }
+
+  @if (pdfErrorMessage()) {
+    <app-message-alert [type]="'danger'" id="pdf-error-alert" class="d-block mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <span>{{ pdfErrorMessage() }}</span>
+      </div>
+    </app-message-alert>
+  }
+
+  <!-- Estado de carga -->
+  @if (isLoading() && !invoice()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ es.invoices.loadingInvoice }}</span>
+      </div>
+      <div class="text-muted small mt-2">{{ es.invoices.loadingInvoice }}</div>
+    </div>
+  } @else if (invoice(); as inv) {
+    <!-- Cabecera de la Factura y Datos del Cliente -->
+    <div class="row g-3 mb-4">
+      <!-- Datos de la Factura -->
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-primary text-white fw-semibold">
+            <i class="bi bi-receipt me-1"></i> {{ es.invoices.invoiceDetailTitle }}
+          </div>
+          <div class="card-body">
+            <div class="mb-2">
+              <span class="text-muted small d-block">{{ es.invoices.invoiceNumberLabel }}</span>
+              <span class="fs-5 fw-bold text-dark" id="invoice-number-val">{{ inv.invoiceNumber }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-muted small d-block">{{ es.invoices.orderDateLabel }}</span>
+              <span class="fw-medium text-dark" id="invoice-date-val">{{ inv.orderDate | dateFormat: 'dateTime' }}</span>
+            </div>
+            <div>
+              <span class="text-muted small d-block">{{ es.invoices.transactionIdLabel }}</span>
+              <span class="badge bg-secondary" id="invoice-id-badge">#{{ inv.id }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos del Cliente -->
+      <div class="col-md-8">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-light fw-semibold">
+            <i class="bi bi-person-badge me-1"></i> {{ es.invoices.customerDataHeader }}
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <span class="text-muted small d-block">{{ es.invoices.customerLabel }}</span>
+                <span class="fw-bold text-dark" id="customer-name-val">{{ inv.customerName }}</span>
+              </div>
+              <div class="col-sm-6">
+                <span class="text-muted small d-block">{{ es.invoices.customerCardLabel }}</span>
+                <span class="fw-bold text-dark" id="customer-card-val">{{ inv.customerIdentityCard }}</span>
+              </div>
+              <div class="col-sm-6">
+                <span class="text-muted small d-block">{{ es.invoices.customerEmailLabel }}</span>
+                <span class="text-dark">{{ inv.customerEmail || '-' }}</span>
+              </div>
+              <div class="col-sm-6">
+                <span class="text-muted small d-block">{{ es.invoices.customerAddressLabel }}</span>
+                <span class="text-dark">{{ inv.customerAddress }}</span>
+              </div>
+              <div class="col-sm-4">
+                <span class="text-muted small d-block">{{ es.invoices.customerCityLabel }}</span>
+                <span class="text-dark">{{ inv.customerCity }}</span>
+              </div>
+              <div class="col-sm-4">
+                <span class="text-muted small d-block">{{ es.invoices.customerCountryLabel }}</span>
+                <span class="text-dark">{{ inv.customerCountry }}</span>
+              </div>
+              <div class="col-sm-4">
+                <span class="text-muted small d-block">{{ es.invoices.postalCodeLabel }}</span>
+                <span class="text-dark">{{ inv.customerPostalCode || '-' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Detalle -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-light fw-semibold">
+        <i class="bi bi-list-check me-1"></i> {{ es.invoices.itemsHeader }}
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 15%;">{{ es.invoices.productCodeHeader }}</th>
+                <th style="width: 35%;">{{ es.invoices.productNameHeader }}</th>
+                <th class="text-center" style="width: 10%;">{{ es.invoices.quantityHeader }}</th>
+                <th class="text-end" style="width: 12%;">{{ es.invoices.unitPriceHeader }}</th>
+                <th class="text-center" style="width: 10%;">{{ es.invoices.taxRateHeader }}</th>
+                <th class="text-end" style="width: 18%;">{{ es.invoices.lineSubtotalHeader }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of inv.lines; track line.productId) {
+                <tr>
+                  <td class="fw-semibold text-secondary">{{ line.productCode }}</td>
+                  <td class="fw-medium text-dark">{{ line.productName }}</td>
+                  <td class="text-center">{{ line.quantity }}</td>
+                  <td class="text-end">{{ line.unitPrice | currencyFormat }}</td>
+                  <td class="text-center">{{ formatTaxPercent(line.taxRate) }}</td>
+                  <td class="text-end fw-bold">{{ line.lineSubtotal | currencyFormat }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Totales y Resumen -->
+    <div class="row justify-content-end mb-4">
+      <div class="col-md-5 col-lg-4">
+        <div class="card shadow-sm border-0 invoice-totals-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">{{ es.invoices.subtotalLabel }}:</span>
+              <span class="fw-semibold" id="invoice-subtotal-val">{{ inv.subtotal | currencyFormat }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">{{ es.invoices.discountLabel }}:</span>
+              <span class="text-danger fw-semibold" id="invoice-discount-val">
+                -{{ inv.discountAmount | currencyFormat }}
+              </span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">{{ es.invoices.taxLabel }}:</span>
+              <span class="fw-semibold" id="invoice-tax-val">{{ inv.taxAmount | currencyFormat }}</span>
+            </div>
+            <hr class="my-2" />
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fs-5 fw-bold text-dark">{{ es.invoices.totalLabel }}:</span>
+              <span class="fs-4 fw-bold total-highlight" id="invoice-total-val">
+                {{ inv.total | currencyFormat }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visor de PDF (si se cargó) -->
+    @if (showPdf() && pdfBlob()) {
+      <div class="card shadow-sm border-0 mb-4" id="pdf-viewer-section">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">
+            <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>
+            {{ es.invoices.pdfPreviewTitle }}
+          </span>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="closePdf()"
+            id="close-pdf-btn"
+          >
+            <i class="bi bi-x-lg"></i> {{ es.invoices.closePdfViewer }}
+          </button>
+        </div>
+        <div class="card-body p-2">
+          <app-pdf-viewer
+            [content]="pdfBlob()"
+            [fileName]="'Factura-' + inv.invoiceNumber + '.pdf'"
+          />
+        </div>
+      </div>
+    }
+  }
+</div>

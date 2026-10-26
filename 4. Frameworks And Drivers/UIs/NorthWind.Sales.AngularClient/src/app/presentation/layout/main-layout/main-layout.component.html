@@ -1,0 +1,63 @@
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-header ps-3 navbar navbar-dark">
+      <div class="container-fluid d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" routerLink="/">{{ es.common.navBarBrandTitle }}</a>
+        <button title="Navigation menu" class="navbar-toggler" (click)="toggleNavMenu()">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </div>
+    <div [class.collapse]="collapseNavMenu()" class="nav-scrollable" (click)="collapseNavMenuOnMobile()">
+      <nav class="flex-column">
+        <div class="nav-item px-3">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                 class="bi bi-house-door-fill me-2" viewBox="0 0 16 16">
+              <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+            </svg>
+            {{ es.common.homeMenuItemTitle }}
+          </a>
+        </div>
+        @if (authService.isAuthenticated()) {
+          <div class="nav-item px-3">
+            <a class="nav-link" routerLink="/createorder" routerLinkActive="active">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                   class="bi bi-card-checklist me-2" viewBox="0 0 16 16">
+                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+                <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
+              </svg>
+              {{ es.createOrder.createOrderMenuItemTitle }}
+            </a>
+          </div>
+          <div class="nav-item px-3">
+            <a class="nav-link" routerLink="/invoices" routerLinkActive="active">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                   class="bi bi-receipt me-2" viewBox="0 0 16 16">
+                <path d="M1.92.506a.5.5 0 0 1 .434.14L3 1.293l.646-.647a.5.5 0 0 1 .708 0L5 1.293l.646-.647a.5.5 0 0 1 .708 0L7 1.293l.646-.647a.5.5 0 0 1 .708 0L9 1.293l.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647A.5.5 0 0 1 14 1.05v13.9a.5.5 0 0 1-.854.353l-.646-.647-.646.647a.5.5 0 0 1-.708 0L10 14.707l-.646.647a.5.5 0 0 1-.708 0L8 14.707l-.646.647a.5.5 0 0 1-.708 0L6 14.707l-.646.647a.5.5 0 0 1-.708 0L4 14.707l-.646.647a.5.5 0 0 1-.854-.353V1.05a.5.5 0 0 1 .05-.247l.72-1.3zM2 2v12h12V2zm3 3h6v1H5zm0 2h6v1H5zm0 2h6v1H5z"/>
+              </svg>
+              {{ es.invoices.invoicesMenuItemTitle }}
+            </a>
+          </div>
+        }
+      </nav>
+    </div>
+  </aside>
+  <main>
+    <header class="top-row px-4">
+      <app-real-time-clock></app-real-time-clock>
+      <div class="user-block">
+        @if (authService.isAuthenticated()) {
+          <span class="user-name">{{ authService.currentUser() }}</span>
+          <a routerLink="/user/logout" class="auth-link">{{ es.common.closeSessionText }}</a>
+        } @else {
+          <a routerLink="/user/register" class="auth-link">{{ es.common.createAccountText }}</a>
+          <a routerLink="/user/login" class="auth-link">{{ es.common.loginText }}</a>
+        }
+      </div>
+    </header>
+    <article class="content px-4">
+      <router-outlet></router-outlet>
+    </article>
+  </main>
+</div>

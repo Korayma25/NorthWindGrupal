@@ -1,0 +1,42 @@
+<div class="pdf-viewer-container d-flex flex-column h-100">
+  <div class="pdf-viewer-toolbar d-flex justify-content-end gap-2 mb-2">
+    @if (rawBlobUrl()) {
+      <a
+        [href]="rawBlobUrl()"
+        [download]="fileName()"
+        class="btn btn-outline-primary btn-sm"
+        id="pdf-download-btn"
+      >
+        <i class="bi bi-download me-1"></i>
+        {{ es.invoices.downloadPdfButtonText }}
+      </a>
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm"
+        id="pdf-print-btn"
+        (click)="print()"
+      >
+        <i class="bi bi-printer me-1"></i>
+        {{ es.invoices.printPdfButtonText }}
+      </button>
+    }
+  </div>
+
+  @if (safeBlobUrl()) {
+    <iframe
+      #pdfIframe
+      [src]="safeBlobUrl()"
+      class="pdf-viewer-frame"
+      title="PDF Viewer"
+      id="pdf-frame"
+    >
+    </iframe>
+  } @else {
+    <div class="text-center py-5 border rounded bg-light" style="height: 80vh;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">{{ es.invoices.loadingPdf }}</span>
+      </div>
+      <p class="mt-2 text-muted">Generando vista previa del documento...</p>
+    </div>
+  }
+</div>

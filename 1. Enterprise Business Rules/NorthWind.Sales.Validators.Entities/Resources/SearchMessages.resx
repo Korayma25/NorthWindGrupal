@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageGreaterThanZero" xml:space="preserve"><value>El número de página debe ser mayor o igual a 1.</value></data>
+  <data name="PageSizeBetweenOneAndFifty" xml:space="preserve"><value>El tamaño de página debe estar entre 1 y 50.</value></data>
+  <data name="CustomerNameMaximumLength" xml:space="preserve"><value>La longitud máxima del nombre del cliente es 40.</value></data>
+  <data name="CustomerNameOnlyLetters" xml:space="preserve"><value>El nombre del cliente solo debe contener letras.</value></data>
+  <data name="IdentityCardOnlyDigits" xml:space="preserve"><value>La cédula solo debe contener dígitos.</value></data>
+  <data name="IdentityCardMaximumLength" xml:space="preserve"><value>La longitud máxima de la cédula es 10 dígitos.</value></data>
+  <data name="IdentityCardInvalid" xml:space="preserve"><value>La cédula especificada no es una cédula ecuatoriana válida.</value></data>
+  <data name="ProductNameMaximumLength" xml:space="preserve"><value>La longitud máxima del nombre del producto es 60.</value></data>
+  <data name="ProductCodeMaximumLength" xml:space="preserve"><value>La longitud máxima del código del producto es 20.</value></data>
+  <data name="InvoiceNumberMaximumLength" xml:space="preserve"><value>La longitud máxima del número de factura es 17.</value></data>
+  <data name="InvoiceNumberOnlyDigitsAndHyphens" xml:space="preserve"><value>El número de factura solo debe contener dígitos y guiones.</value></data>
+</root>

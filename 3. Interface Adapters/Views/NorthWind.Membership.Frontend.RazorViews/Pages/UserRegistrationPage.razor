@@ -1,0 +1,13 @@
+@page "/user/register"
+@inject UserRegistrationViewModel ViewModel
+
+<div class="d-flex justify-content-center align-items-center py-4">
+    <div class="card shadow-sm border-0 auth-card" style="max-width: 480px; width: 100%;">
+        <div class="card-header bg-navy text-white text-center py-3">
+            <h5 class="mb-0 fw-bold">@CommonMessages.CreateAccountText</h5>
+        </div>
+        <div class="card-body p-4">
+            <UserRegistrationComponent ViewModel="ViewModel" />
+        </div>
+    </div>
+</div>
